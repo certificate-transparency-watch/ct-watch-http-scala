@@ -4,6 +4,7 @@ import akka.actor.{ActorSystem, Props}
 import akka.io.IO
 import spray.can.Http
 import net.noerd.prequel.DatabaseConfig
+import com.codahale.metrics.health.HealthCheckRegistry
 
 object Boot extends App {
 
@@ -14,7 +15,11 @@ object Boot extends App {
     jdbcURL = "jdbc:postgresql://172.17.42.1/ct-watch?user=docker&password=docker"
   )
   
-  val api = new Api(new LogServerRepository, new PostgresSignedTreeHeadRepository(database))
+  val healthCheckRegistry = new HealthCheckRegistry
+  
+  val api = new Api(new LogServerRepository, new PostgresSignedTreeHeadRepository(database), healthCheckRegistry)
+  
+  new HealthChecks(healthCheckRegistry)
   
   val service = system.actorOf(Props(new ApiActor(api)), "api")
 
