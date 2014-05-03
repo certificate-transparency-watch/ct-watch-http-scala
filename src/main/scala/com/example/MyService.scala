@@ -26,19 +26,6 @@ case class LogServer(id: Int, name: String)
 class MyService(val actorRefFactory : ActorRefFactory, logServerRepository: LogServerRepository) extends HttpService {
 
   val myRoute =
-    path("") {
-      get {
-        respondWithMediaType(`text/html`) { // XML is marshalled to `text/xml` by default, so we simply override here
-          complete {
-            <html>
-              <body>
-                <h1>Say hello to <i>spray-routing</i> on <i>spray-can</i>!</h1>
-              </body>
-            </html>
-          }
-        }
-      }
-    } ~
     path ("logserver" / IntNumber) { logServerId =>
       get {
         complete {
@@ -46,5 +33,13 @@ class MyService(val actorRefFactory : ActorRefFactory, logServerRepository: LogS
           ls.id + " " + ls.name
         }
       }
+    } ~
+    path ("domain" / Rest) { domain =>
+      get {
+        complete {
+          domain
+        }
+      }
     }
+    
 }

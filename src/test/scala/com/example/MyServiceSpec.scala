@@ -10,9 +10,9 @@ class MyServiceSpec extends Specification with Specs2RouteTest {
   
   "MyService" should {
 
-    "return a greeting for GET requests to the root path" in {
-      Get() ~> myService.myRoute ~> check {
-        responseAs[String] must contain("Say hello")
+    "does domain stuff" in {
+      Get("/domain/example.com") ~> myService.myRoute ~> check {
+        responseAs[String] must contain("example.com")
       }
     }
 
@@ -22,10 +22,9 @@ class MyServiceSpec extends Specification with Specs2RouteTest {
       }
     }
 
-    "return a MethodNotAllowed error for PUT requests to the root path" in {
-      Put() ~> myService.sealRoute(myService.myRoute) ~> check {
+    "return a MethodNotAllowed error for PUT requests to the domain" in {
+      Put("/domain/example.com") ~> myService.sealRoute(myService.myRoute) ~> check {
         status === MethodNotAllowed
-        responseAs[String] === "HTTP method not allowed, supported methods: GET"
       }
     }
     
