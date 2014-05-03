@@ -15,6 +15,18 @@ case class SignedTreeHead(
     logserverId: Int
 )
 
+case class LogEntry (
+    logServer: String,
+    idx: Long,
+    domain: String,
+    certificate: String
+)
+
+trait LogEntryRepository {
+  def lookupByDomain(domain: String): Seq[LogEntry]
+}
+
 trait SignedTreeHeadRepository {
   val findByLogServerName : String => Option[Seq[SignedTreeHead]]
 }
+

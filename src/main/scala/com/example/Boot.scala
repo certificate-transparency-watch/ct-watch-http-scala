@@ -17,7 +17,7 @@ object Boot extends App {
   
   val healthCheckRegistry = new HealthCheckRegistry
   
-  val api = new Api(new LogServerRepository, new PostgresSignedTreeHeadRepository(database), healthCheckRegistry)
+  val api = new Api(new LogServerRepository, new PostgresSignedTreeHeadRepository(database), healthCheckRegistry, new PostgresLogEntryRepository(database))
   
   new HealthChecks(healthCheckRegistry)
   

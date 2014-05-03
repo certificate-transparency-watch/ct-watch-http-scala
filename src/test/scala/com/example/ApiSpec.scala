@@ -29,10 +29,16 @@ class StubHealthCheckRegistry extends HealthCheckRegistry {
   }
 }
 
+class StubLogEntryRepository extends LogEntryRepository {
+  override def lookupByDomain(domain: String) = {
+    List(LogEntry("ct.googleapis.com/pilot", 100, "example.com", "foobar"))
+  }
+}
+
 class ApiSpec extends Specification with Specs2RouteTest with HttpService {
   def actorRefFactory = system
   
-  val api = new Api(new LogServerRepository, new StubSignedTreeHeadRepository, new StubHealthCheckRegistry)
+  val api = new Api(new LogServerRepository, new StubSignedTreeHeadRepository, new StubHealthCheckRegistry, new StubLogEntryRepository)
   
   "API" should {
 

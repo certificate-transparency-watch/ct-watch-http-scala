@@ -23,7 +23,7 @@ object MyJsonProtocol extends DefaultJsonProtocol {
   }
 }
 
-class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHeadRepository, healthCheckRegistry: HealthCheckRegistry) {
+class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHeadRepository, healthCheckRegistry: HealthCheckRegistry, logEntryRepository: LogEntryRepository) {
   
   import MyJsonProtocol._
 
@@ -42,7 +42,16 @@ class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHe
     path ("domain" / Rest) { domain =>
       get {
         complete {
-          domain
+          val entries = logEntryRepository.lookupByDomain(domain)
+          <foo>
+            {
+              for (entry <- entries) yield {
+                <hehe>
+                  {entry.domain}
+                </hehe>
+              }
+            }
+          </foo>
         }
       }
     } ~
