@@ -4,12 +4,13 @@ import akka.actor.{Actor, ActorRefFactory}
 import spray.routing._
 import spray.http._
 import MediaTypes._
+import Directives._
 
-class ApiActor(api : Api) extends Actor {
-  def receive = api.runRoute(api.route)
+class ApiActor(api : Api) extends HttpServiceActor {
+  def receive = runRoute(api.route)
 }
 
-class Api(val actorRefFactory : ActorRefFactory, logServerRepository: LogServerRepository) extends HttpService {
+class Api(logServerRepository: LogServerRepository) {
 
   val route =
     path ("logserver" / IntNumber) { logServerId =>

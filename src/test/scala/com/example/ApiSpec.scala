@@ -4,9 +4,12 @@ import org.specs2.mutable.Specification
 import spray.testkit.Specs2RouteTest
 import spray.http._
 import StatusCodes._
+import spray.routing.HttpService
 
-class ApiSpec extends Specification with Specs2RouteTest {
-  val api = new Api(system, new LogServerRepository)
+class ApiSpec extends Specification with Specs2RouteTest with HttpService {
+  def actorRefFactory = system
+  
+  val api = new Api(new LogServerRepository)
   
   "API" should {
 
@@ -23,7 +26,7 @@ class ApiSpec extends Specification with Specs2RouteTest {
     }
 
     "return a MethodNotAllowed error for PUT requests to the domain" in {
-      Put("/domain/example.com") ~> api.sealRoute(api.route) ~> check {
+      Put("/domain/example.com") ~> sealRoute(api.route) ~> check {
         status === MethodNotAllowed
       }
     }
