@@ -16,5 +16,5 @@ case class SignedTreeHead(
 )
 
 trait SignedTreeHeadRepository {
-  val findByLogServerName : String => Option[List[SignedTreeHead]]
+  val findByLogServerName : String => Option[Seq[SignedTreeHead]]
 }
