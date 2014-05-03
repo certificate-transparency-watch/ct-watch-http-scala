@@ -13,7 +13,7 @@ class ApiActor(api : Api) extends HttpServiceActor {
 }
 
 object MyJsonProtocol extends DefaultJsonProtocol {
-  implicit val colorFormat = jsonFormat6(SignedTreeHead)
+  implicit val sthFormat = jsonFormat6(SignedTreeHead)
 }
 
 class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHeadRepository) {
