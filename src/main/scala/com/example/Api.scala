@@ -5,20 +5,13 @@ import spray.routing._
 import spray.http._
 import MediaTypes._
 
-class MyServiceActor(myService : MyService) extends Actor {
-  def receive = myService.runRoute(myService.myRoute)
+class ApiActor(api : Api) extends Actor {
+  def receive = api.runRoute(api.route)
 }
 
-class LogServerRepository {
-  def lookup(logServerId: Int) : LogServer = LogServer(logServerId, "logServer" + logServerId)
-}
+class Api(val actorRefFactory : ActorRefFactory, logServerRepository: LogServerRepository) extends HttpService {
 
-case class LogServer(id: Int, name: String)
-
-
-class MyService(val actorRefFactory : ActorRefFactory, logServerRepository: LogServerRepository) extends HttpService {
-
-  val myRoute =
+  val route =
     path ("logserver" / IntNumber) { logServerId =>
       get {
         complete {
