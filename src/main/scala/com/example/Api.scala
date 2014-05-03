@@ -5,7 +5,8 @@ import spray.routing._
 import spray.http._
 import MediaTypes._
 import Directives._
-import spray.json.DefaultJsonProtocol
+import spray.json._
+
 
 class ApiActor(api : Api) extends HttpServiceActor {
   def receive = runRoute(api.route)
@@ -16,6 +17,8 @@ object MyJsonProtocol extends DefaultJsonProtocol {
 }
 
 class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHeadRepository) {
+  
+  import MyJsonProtocol._
 
   val route =
     path ("logserver" / Rest) { logServer =>
@@ -23,8 +26,6 @@ class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHe
         complete {
           sthRepository.findByLogServerName(logServer).map { xs =>
             val (good, bad) = xs.partition(_.verified)
-            import spray.json._
-            import MyJsonProtocol._
             Map("good" -> good, "bad" -> bad).toJson.prettyPrint              
           }
           
