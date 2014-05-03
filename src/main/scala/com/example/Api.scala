@@ -43,15 +43,7 @@ class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHe
       get {
         complete {
           val entries = logEntryRepository.lookupByDomain(domain)
-          <foo>
-            {
-              for (entry <- entries) yield {
-                <hehe>
-                  {entry.domain}
-                </hehe>
-              }
-            }
-          </foo>
+          (new DomainAtomFeedGenerator).generateAtomFeed(domain, entries).toString
         }
       }
     } ~
