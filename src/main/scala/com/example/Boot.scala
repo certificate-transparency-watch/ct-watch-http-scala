@@ -8,7 +8,7 @@ object Boot extends App {
 
   val system = ActorSystem("ct-watch-http")
   
-  val api = new Api(new LogServerRepository)
+  val api = new Api(new LogServerRepository, null)
   
   val service = system.actorOf(Props(new ApiActor(api)), "api")
 

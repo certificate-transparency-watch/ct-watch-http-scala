@@ -5,11 +5,20 @@ import spray.testkit.Specs2RouteTest
 import spray.http._
 import StatusCodes._
 import spray.routing.HttpService
+import spray.json._
+
+class StubSignedTreeHeadRepository extends SignedTreeHeadRepository {
+  override val findByLogServerName: String => Option[List[SignedTreeHead]] = {
+    case "google"            => Some(List(SignedTreeHead(1,1337,"a","b",true,1), SignedTreeHead(2, 1338, "c", "d", false, 1)))
+    case "noSignedTreeHeads" => Some(List())
+    case _                   => None
+  }
+}
 
 class ApiSpec extends Specification with Specs2RouteTest with HttpService {
   def actorRefFactory = system
   
-  val api = new Api(new LogServerRepository)
+  val api = new Api(new LogServerRepository, new StubSignedTreeHeadRepository)
   
   "API" should {
 
@@ -32,8 +41,20 @@ class ApiSpec extends Specification with Specs2RouteTest with HttpService {
     }
     
     "return log server with id" in {
-      Get("/logserver/5") ~> api.route ~> check {
-        responseAs[String] === "5 logServer5"
+      Get("/logserver/google") ~> api.route ~> check {
+        responseAs[String] contains "1337"
+      }
+    }
+    
+    "returns empty for empty" in {
+      Get("/logserver/noSignedTreeHeads") ~> api.route ~> check {
+        responseAs[String].parseJson === """{"good":[], "bad":[]}""".parseJson
+      }
+    }
+    
+    "returns 404 error when log server doesn't exist" in {
+      Get("/logserver/nope") ~> api.route ~> check {
+        status === NotFound
       }
     }
   }
