@@ -20,7 +20,8 @@ libraryDependencies ++= {
     "com.gu"              %%  "prequel"       % "0.3.12",
     "org.scalaz"          %%  "scalaz-core"   % "7.0.6",
     "org.postgresql"      %   "postgresql"    % "9.3-1101-jdbc41",
-    "com.codahale.metrics" % "metrics-healthchecks" % "3.0.2"
+    "com.codahale.metrics" % "metrics-healthchecks" % "3.0.2",
+    "joda-time"           % "joda-time"       % "2.3"
   )
 }
 
