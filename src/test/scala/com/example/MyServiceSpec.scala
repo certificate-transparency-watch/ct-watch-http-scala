@@ -6,7 +6,7 @@ import spray.http._
 import StatusCodes._
 
 class MyServiceSpec extends Specification with Specs2RouteTest {
-  val myService = new MyService(system)
+  val myService = new MyService(system, new LogServerRepository)
   
   "MyService" should {
 
@@ -26,6 +26,12 @@ class MyServiceSpec extends Specification with Specs2RouteTest {
       Put() ~> myService.sealRoute(myService.myRoute) ~> check {
         status === MethodNotAllowed
         responseAs[String] === "HTTP method not allowed, supported methods: GET"
+      }
+    }
+    
+    "return log server with id" in {
+      Get("/logserver/5") ~> myService.myRoute ~> check {
+        responseAs[String] === "5 logServer5"
       }
     }
   }

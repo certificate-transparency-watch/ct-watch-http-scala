@@ -8,7 +8,11 @@ object Boot extends App {
 
   val system = ActorSystem("on-spray-can")
   
-  val service = system.actorOf(Props[MyServiceActor], "demo-service")
+  
+  val repo = new LogServerRepository
+  val myService = new MyService(system, repo)
+  
+  val service = system.actorOf(Props(new MyServiceActor(myService)), "demo-service")
 
   IO(Http)(system) ! Http.Bind(service, interface = "localhost", port = 8088)
 }
