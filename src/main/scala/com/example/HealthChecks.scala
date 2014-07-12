@@ -3,6 +3,7 @@ package com.example
 import com.codahale.metrics.health.HealthCheck
 import com.codahale.metrics.health.HealthCheck.Result
 import com.codahale.metrics.health.HealthCheckRegistry
+import com.google.common.collect.{MapDifference, Maps}
 import net.noerd.prequel.DatabaseConfig
 import org.joda.time.DateTime
 
@@ -10,6 +11,7 @@ class HealthChecks(healthCheckRegistry: HealthCheckRegistry, db: DatabaseConfig)
   healthCheckRegistry.register("recent sth", new RecentSthCheck(db))
   healthCheckRegistry.register("unprocessed log entries", new UnprocessedLogEntriesCheck(db))
   healthCheckRegistry.register("unverified sth", new UnverifiedSthCheck(db))
+  healthCheckRegistry.register("sth drift", new SthDrift(db))
 }
 
 class RecentSthCheck(db: DatabaseConfig) extends HealthCheck {
@@ -61,8 +63,37 @@ class UnverifiedSthCheck(db: DatabaseConfig) extends HealthCheck {
   }
 }
 
-class SthDrift extends HealthCheck {
-  override def check(): Result = throw new NotImplementedError()
+class SthDrift(db: DatabaseConfig) extends HealthCheck {
+  override def check(): Result = {
+    type Id = Int
+    val sthTreesizes : Map[Id, Int] = seqTupleToMap(db.transaction { tx =>
+      tx.select("select log_server_id, max(treesize) from sth group by log_server_id order by log_server_id") { r =>
+        (r.nextInt.get, r.nextInt.get)
+      }
+    })
+
+    val logEntriesIndexes: Map[Id, Int] = seqTupleToMap(db.transaction { tx =>
+      tx.select("WITH RECURSIVE  t AS" +
+        "(SELECT max(log_server_id) AS log_server_id FROM log_entry UNION ALL SELECT (SELECT max(log_server_id) as log_server_id FROM log_entry WHERE log_server_id < t.log_server_id) FROM t where t.log_server_id is not null)" +
+        "select log_server_id, (select max(idx) from log_entry where log_server_id=t.log_server_id) from t where t.log_server_id is not null order by log_server_id;") { r =>
+        (r.nextInt.get, r.nextInt.get)
+      }
+    })
+
+    import scala.collection.JavaConverters._
+    val diff: MapDifference[Id, Int] = Maps.difference(sthTreesizes.asJava, logEntriesIndexes.asJava)
+
+    println(diff.toString)
+
+    if (sthTreesizes.size != logEntriesIndexes.size)
+      Result.unhealthy("Some log servers have no log entries")
+    else if (diff.entriesDiffering().asScala.exists { case (a,b) => Math.abs(b.leftValue - b.rightValue) > 5000 })
+      Result.unhealthy("Log entries indexes and STH tree size have drifted, for at least one log server: " + diff.entriesDiffering().asScala.toString)
+    else
+      Result.healthy()
+  }
+
+  private def seqTupleToMap(in: Seq[(Int, Int)]): Map[Int, Int] = in.groupBy(_._1).map { case (k, v) => (k, v.map(_._2).head) }
 }
 
 class MaximumMergeDelayCheck extends HealthCheck {

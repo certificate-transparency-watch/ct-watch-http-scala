@@ -21,7 +21,9 @@ libraryDependencies ++= {
     "org.scalaz"          %%  "scalaz-core"   % "7.0.6",
     "org.postgresql"      %   "postgresql"    % "9.3-1101-jdbc41",
     "com.codahale.metrics" % "metrics-healthchecks" % "3.0.2",
-    "joda-time"           % "joda-time"       % "2.3"
+    "joda-time"           % "joda-time"       % "2.3",
+    "com.google.guava"    % "guava"           % "17.0",
+    "com.google.code.findbugs" % "jsr305" % "1.3.9"
   )
 }
 
