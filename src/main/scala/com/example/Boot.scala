@@ -19,7 +19,7 @@ object Boot extends App {
   
   val api = new Api(new LogServerRepository, new PostgresSignedTreeHeadRepository(database), healthCheckRegistry, new PostgresLogEntryRepository(database))
   
-  new HealthChecks(healthCheckRegistry)
+  new HealthChecks(healthCheckRegistry, database)
   
   val service = system.actorOf(Props(new ApiActor(api)), "api")
 
