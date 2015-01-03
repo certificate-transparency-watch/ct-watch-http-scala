@@ -2,13 +2,13 @@ organization  := "com.example"
 
 version       := "0.1"
 
-scalaVersion  := "2.10.3"
+scalaVersion  := "2.10.4"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
 libraryDependencies ++= {
-  val akkaV = "2.1.4"
-  val sprayV = "1.1.1"
+  val akkaV = "2.3.8"
+  val sprayV = "1.3.1"
   Seq(
     "io.spray"            %   "spray-can"     % sprayV,
     "io.spray"            %   "spray-routing" % sprayV,
