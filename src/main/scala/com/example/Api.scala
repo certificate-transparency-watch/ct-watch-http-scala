@@ -1,6 +1,7 @@
 package com.example
 
 import akka.actor.{Actor, ActorRefFactory}
+import spray.httpx.SprayJsonSupport
 import spray.routing._
 import spray.http._
 import MediaTypes._
@@ -26,6 +27,7 @@ object MyJsonProtocol extends DefaultJsonProtocol {
 class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHeadRepository, healthCheckRegistry: HealthCheckRegistry, logEntryRepository: LogEntryRepository) {
   
   import MyJsonProtocol._
+  import SprayJsonSupport._
 
   val route =
     path ("logserver" / Rest) { logServer =>
@@ -33,9 +35,8 @@ class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHe
         complete {
           sthRepository.findByLogServerName(logServer).map { xs =>
             val (good, bad) = xs.partition(_.verified)
-            Map("good" -> good, "bad" -> bad).toJson.prettyPrint              
+            Map("good" -> good, "bad" -> bad)
           }
-          
         }
       }
     } ~
@@ -43,7 +44,7 @@ class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHe
       get {
         complete {
           val entries = logEntryRepository.lookupByDomain(domain)
-          (new DomainAtomFeedGenerator).generateAtomFeed(domain, entries).toString
+          (new DomainAtomFeedGenerator).generateAtomFeed(domain, entries)
         }
       }
     } ~
@@ -55,9 +56,9 @@ class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHe
           if (results.isEmpty)
             ctx.complete(StatusCodes.NotImplemented)
           else if (!results.filter { case (_, v) => !v.isHealthy }.isEmpty) {
-            ctx.complete(500, results.toMap.toJson.prettyPrint)
+            ctx.complete(500, results.toMap)
           } else {
-            ctx.complete(200, results.toMap.toJson.prettyPrint)
+            ctx.complete(200, results.toMap)
           }
         }
       }
