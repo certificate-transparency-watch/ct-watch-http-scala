@@ -1,3 +1,5 @@
+import AssemblyKeys._
+
 organization  := "com.example"
 
 version       := "0.1"
@@ -27,4 +29,9 @@ libraryDependencies ++= {
   )
 }
 
+javaOptions += "-XX:MaxPermSize=1024"
+
 Revolver.settings
+
+assemblySettings
+
