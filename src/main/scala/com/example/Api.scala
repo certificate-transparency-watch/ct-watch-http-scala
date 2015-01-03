@@ -1,6 +1,7 @@
 package com.example
 
 import akka.actor.{Actor, ActorRefFactory}
+import spray.http.HttpHeaders.`Access-Control-Allow-Origin`
 import spray.httpx.SprayJsonSupport
 import spray.routing._
 import spray.http._
@@ -32,10 +33,12 @@ class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHe
   val route =
     path ("logserver" / Rest) { logServer =>
       get {
-        complete {
-          sthRepository.findByLogServerName(logServer).map { xs =>
-            val (good, bad) = xs.partition(_.verified)
-            Map("good" -> good, "bad" -> bad)
+        respondWithHeader(`Access-Control-Allow-Origin`(AllOrigins)) {
+          complete {
+            sthRepository.findByLogServerName(logServer).map { xs =>
+              val (good, bad) = xs.partition(_.verified)
+              Map("good" -> good, "bad" -> bad)
+            }
           }
         }
       }
