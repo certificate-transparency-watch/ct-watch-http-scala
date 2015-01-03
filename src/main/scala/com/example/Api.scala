@@ -10,6 +10,7 @@ import Directives._
 import spray.json._
 import com.codahale.metrics.health.HealthCheckRegistry
 import com.codahale.metrics.health.HealthCheck
+import spray.routing.directives.{LoggingMagnet, DebuggingDirectives}
 
 
 class ApiActor(api : Api) extends HttpServiceActor {
@@ -30,41 +31,44 @@ class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHe
   import MyJsonProtocol._
   import SprayJsonSupport._
 
+  val logRequestPrintln = DebuggingDirectives.logRequest(LoggingMagnet(println _))
+
   val route =
-    path ("logserver" / Rest) { logServer =>
-      get {
-        respondWithHeader(`Access-Control-Allow-Origin`(AllOrigins)) {
+    logRequestPrintln {
+      path ("logserver" / Rest) { logServer =>
+        get {
+          respondWithHeader(`Access-Control-Allow-Origin`(AllOrigins)) {
+            complete {
+              sthRepository.findByLogServerName(logServer).map { xs =>
+                val (good, bad) = xs.partition(_.verified)
+                Map("good" -> good, "bad" -> bad)
+              }
+            }
+          }
+        }
+      } ~
+      path ("domain" / Rest) { domain =>
+        get {
           complete {
-            sthRepository.findByLogServerName(logServer).map { xs =>
-              val (good, bad) = xs.partition(_.verified)
-              Map("good" -> good, "bad" -> bad)
+            val entries = logEntryRepository.lookupByDomain(domain)
+            (new DomainAtomFeedGenerator).generateAtomFeed(domain, entries)
+          }
+        }
+      } ~
+      path ("health") {
+        get {
+          ctx => {
+            import collection.JavaConverters._
+            val results = healthCheckRegistry.runHealthChecks().asScala
+            if (results.isEmpty)
+              ctx.complete(StatusCodes.NotImplemented)
+            else if (!results.filter { case (_, v) => !v.isHealthy }.isEmpty) {
+              ctx.complete(500, results.toMap)
+            } else {
+              ctx.complete(200, results.toMap)
             }
           }
         }
       }
-    } ~
-    path ("domain" / Rest) { domain =>
-      get {
-        complete {
-          val entries = logEntryRepository.lookupByDomain(domain)
-          (new DomainAtomFeedGenerator).generateAtomFeed(domain, entries)
-        }
-      }
-    } ~
-    path ("health") {
-      get {
-        ctx => {
-          import collection.JavaConverters._
-          val results = healthCheckRegistry.runHealthChecks().asScala
-          if (results.isEmpty)
-            ctx.complete(StatusCodes.NotImplemented)
-          else if (!results.filter { case (_, v) => !v.isHealthy }.isEmpty) {
-            ctx.complete(500, results.toMap)
-          } else {
-            ctx.complete(200, results.toMap)
-          }
-        }
-      }
     }
-    
 }
