@@ -83,8 +83,6 @@ class SthDrift(db: DatabaseConfig) extends HealthCheck {
     import scala.collection.JavaConverters._
     val diff: MapDifference[Id, Int] = Maps.difference(sthTreesizes.asJava, logEntriesIndexes.asJava)
 
-    println(diff.toString)
-
     if (sthTreesizes.size != logEntriesIndexes.size)
       Result.unhealthy("Some log servers have no log entries")
     else if (diff.entriesDiffering().asScala.exists { case (a,b) => Math.abs(b.leftValue - b.rightValue) > 5000 })
