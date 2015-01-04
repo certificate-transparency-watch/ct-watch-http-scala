@@ -23,5 +23,5 @@ object Boot extends App {
   
   val service = system.actorOf(Props(new ApiActor(api)), "api")
 
-  IO(Http)(system) ! Http.Bind(service, interface = "localhost", port = 8088)
+  IO(Http)(system) ! Http.Bind(service, interface = "0.0.0.0", port = 8088)
 }
