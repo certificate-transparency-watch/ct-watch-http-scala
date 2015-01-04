@@ -22,7 +22,7 @@ class RecentSthCheck(db: DatabaseConfig) extends HealthCheck {
       }
     }
 
-    if (results.length != 2) {
+    if (results.length != 6) {
       Result.unhealthy("There exists a log server that has 0 STHs")
     } else {
       if (results.forall { datetime => datetime.isAfter(new DateTime().minusHours(3)) })
@@ -85,7 +85,7 @@ class SthDrift(db: DatabaseConfig) extends HealthCheck {
 
     if (sthTreesizes.size != logEntriesIndexes.size)
       Result.unhealthy("Some log servers have no log entries")
-    else if (diff.entriesDiffering().asScala.exists { case (a,b) => Math.abs(b.leftValue - b.rightValue) > 5000 })
+    else if (diff.entriesDiffering().asScala.exists { case (a,b) => Math.abs(b.leftValue - b.rightValue) > 15000 })
       Result.unhealthy("Log entries indexes and STH tree size have drifted, for at least one log server: " + diff.entriesDiffering().asScala.toString)
     else
       Result.healthy()
