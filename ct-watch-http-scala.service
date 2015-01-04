@@ -1,0 +1,14 @@
+[Unit]
+Description=ct-watch-http-scala
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=on-failure
+RestartSec=10
+ExecStartPre=-/usr/bin/docker rm service-ct-watch-http-scala
+ExecStart=/usr/bin/docker run -p 8088:8088 --name=service-ct-watch-http-scala ct-watch-http-scala
+ExecStop=/usr/bin/docker stop -t 2 service-ct-watch-http-scala
+
+[Install]
+WantedBy=multi-user.target
