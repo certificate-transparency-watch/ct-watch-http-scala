@@ -25,7 +25,7 @@ class RecentSthCheck(db: DatabaseConfig) extends HealthCheck {
     if (results.length != 6) {
       Result.unhealthy("There exists a log server that has 0 STHs")
     } else {
-      if (results.forall { datetime => datetime.isAfter(new DateTime().minusHours(3)) })
+      if (results.forall { datetime => datetime.isAfter(new DateTime().minusDays(1)) })
         Result.healthy()
       else
         Result.unhealthy("There exists a log server whose latest STH is >3 hours")
