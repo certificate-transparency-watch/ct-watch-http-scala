@@ -25,7 +25,9 @@ libraryDependencies ++= {
     "com.codahale.metrics" % "metrics-healthchecks" % "3.0.2",
     "joda-time"           % "joda-time"       % "2.3",
     "com.google.guava"    % "guava"           % "17.0",
-    "com.google.code.findbugs" % "jsr305" % "1.3.9"
+    "com.google.code.findbugs" % "jsr305" % "1.3.9",
+    "org.bouncycastle" % "bcprov-ext-jdk14" % "1.51",
+    "org.bouncycastle" % "bcpkix-jdk14" % "1.51"
   )
 }
 
