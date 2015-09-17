@@ -74,7 +74,13 @@ class SthDrift(db: DatabaseConfig) extends HealthCheck {
   override def check(): Result = {
     type Id = Int
     val sthTreesizes : Map[Id, Int] = seqTupleToMap(db.transaction { tx =>
-      tx.select("select log_server_id, max(treesize) from sth group by log_server_id order by log_server_id") { r =>
+      tx.select("""
+WITH RECURSIVE  t AS (
+    SELECT max(log_server_id) AS log_server_id FROM sth
+    UNION ALL
+    SELECT (SELECT max(log_server_id) as log_server_id FROM sth WHERE log_server_id < t.log_server_id)
+        FROM t where t.log_server_id is not null
+) select log_server_id, (select max(treesize) from sth where log_server_id=t.log_server_id) from t where t.log_server_id is not null order by log_server_id;""") { r =>
         (r.nextInt.get, r.nextInt.get)
       }
     })
