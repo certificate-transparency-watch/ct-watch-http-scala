@@ -17,7 +17,14 @@ class HealthChecks(healthCheckRegistry: HealthCheckRegistry, db: DatabaseConfig)
 class RecentSthCheck(db: DatabaseConfig) extends HealthCheck {
   override def check(): Result = {
     val results: Seq[DateTime] = db.transaction { tx =>
-      tx.select("SELECT max(timestamp) FROM sth GROUP BY log_server_id") { r =>
+      tx.select("""
+WITH RECURSIVE  t AS (
+    SELECT max(log_server_id) AS log_server_id FROM sth
+    UNION ALL
+    SELECT (SELECT max(log_server_id) as log_server_id FROM sth WHERE log_server_id < t.log_server_id)
+        FROM t where t.log_server_id is not null
+)
+select (select max(timestamp) from sth where log_server_id=t.log_server_id) from t where t.log_server_id is not null order by log_server_id;""") { r =>
         new DateTime(r.nextLong.get)
       }
     }
