@@ -11,6 +11,9 @@ import spray.json._
 import com.codahale.metrics.health.HealthCheckRegistry
 import com.codahale.metrics.health.HealthCheck
 import spray.routing.directives.{LoggingMagnet, DebuggingDirectives}
+import spray.http.CacheDirectives.`max-age`
+import spray.http.CacheDirectives.public
+import spray.http.HttpHeaders.`Cache-Control`
 
 
 class ApiActor(api : Api) extends HttpServiceActor {
@@ -37,11 +40,13 @@ class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHe
     logRequestPrintln {
       path ("logserver" / Rest) { logServer =>
         get {
-          respondWithHeader(`Access-Control-Allow-Origin`(AllOrigins)) {
-            complete {
-              sthRepository.findByLogServerName(logServer).map { xs =>
-                val (good, bad) = xs.partition(_.verified)
-                Map("good" -> good, "bad" -> bad)
+          respondWithHeader(`Cache-Control`(public, `max-age`(10*60L))) {
+            respondWithHeader(`Access-Control-Allow-Origin`(AllOrigins)) {
+              complete {
+                sthRepository.findByLogServerName(logServer).map { xs =>
+                  val (good, bad) = xs.partition(_.verified)
+                  Map("good" -> good, "bad" -> bad)
+                }
               }
             }
           }
@@ -49,23 +54,27 @@ class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHe
       } ~
       path ("domain" / Rest) { domain =>
         get {
-          complete {
-            val entries = logEntryRepository.lookupByDomain(domain)
-            (new DomainAtomFeedGenerator).generateAtomFeed(domain, entries)
+          respondWithHeader(`Cache-Control`(public, `max-age`(10*60L))) {
+            complete {
+              val entries = logEntryRepository.lookupByDomain(domain)
+              (new DomainAtomFeedGenerator).generateAtomFeed(domain, entries)
+            }
           }
         }
       } ~
       path ("health") {
-        get {
-          ctx => {
-            import collection.JavaConverters._
-            val results = healthCheckRegistry.runHealthChecks().asScala
-            if (results.isEmpty)
-              ctx.complete(StatusCodes.NotImplemented)
-            else if (!results.filter { case (_, v) => !v.isHealthy }.isEmpty) {
-              ctx.complete(500, results.toMap)
-            } else {
-              ctx.complete(200, results.toMap)
+        respondWithHeader(`Cache-Control`(public, `max-age`(60L))) {
+          get {
+            ctx => {
+              import collection.JavaConverters._
+              val results = healthCheckRegistry.runHealthChecks().asScala
+              if (results.isEmpty)
+                ctx.complete(StatusCodes.NotImplemented)
+              else if (!results.filter { case (_, v) => !v.isHealthy }.isEmpty) {
+                ctx.complete(500, results.toMap)
+              } else {
+                ctx.complete(200, results.toMap)
+              }
             }
           }
         }
