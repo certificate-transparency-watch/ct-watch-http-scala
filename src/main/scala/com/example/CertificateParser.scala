@@ -1,5 +1,7 @@
 package com.example
 
+import com.google.common.base.Charsets
+
 import scala.collection.JavaConversions._
 import java.io.ByteArrayInputStream
 import java.security.cert.{CertificateFactory, X509Certificate}
@@ -23,4 +25,6 @@ class CertificateParser {
     }.toSeq
     Certificate(x509cert.getSerialNumber, cn, sans, new DateTime(cert.getNotAfter), issuerDN)
   }
+
+  def parse(le: LogEntry): Certificate = parse(("-----BEGIN CERTIFICATE-----\n" + le.certificate + "\n-----END CERTIFICATE-----").getBytes(Charsets.US_ASCII))
 }
