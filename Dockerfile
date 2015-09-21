@@ -5,6 +5,6 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu utopic main universe" >> /etc/apt
 RUN apt-get update
 RUN apt-get install -y curl openjdk-7-jre openjdk-7-jdk wget
 
-RUN wget https://github.com/tomfitzhenry/ct-watch-http-scala/releases/download/0.6/ct-watch-http-scala-assembly-0.6.jar
+RUN wget https://github.com/tomfitzhenry/ct-watch-http-scala/releases/download/0.7/ct-watch-http-scala-assembly-0.7.jar
 
-CMD java -jar ct-watch-http-scala-assembly-0.6.jar
+CMD java -jar ct-watch-http-scala-assembly-0.7.jar
