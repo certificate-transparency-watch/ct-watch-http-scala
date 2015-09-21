@@ -16,7 +16,7 @@ class CertificateParserSpec extends Specification with Specs2RouteTest {
       val expected = Certificate(
         BigInt("15953718796281471505685363726901697671"),
         "github.com",
-        List("github.com", "www.github.com"),
+        List(List(2, "github.com"), List(2, "www.github.com")),
         new DateTime(2016,4,12,13,0,0),
         "DigiCert SHA2 Extended Validation Server CA")
       expected === actual
