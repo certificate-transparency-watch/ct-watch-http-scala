@@ -20,7 +20,7 @@ class CertificateParser {
     val x509cert: X509Certificate = cf.generateCertificate(new ByteArrayInputStream(c)).asInstanceOf[X509Certificate]
     val cert = new JcaX509CertificateHolder(x509cert)
     val cn = IETFUtils.valueToString(cert.getSubject.getRDNs(BCStyle.CN)(0).getFirst.getValue)
-    val issuerDN = IETFUtils.valueToString(cert.getIssuer.getRDNs(BCStyle.CN)(0).getFirst.getValue)
+    val issuerDN = cert.getIssuer.toString
     val sans = Option(x509cert.getSubjectAlternativeNames).map { s => s.toSeq.map { i => i.toIndexedSeq }}
     Certificate(x509cert.getSerialNumber, cn, sans, new DateTime(cert.getNotAfter), issuerDN)
   }
