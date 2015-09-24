@@ -29,7 +29,7 @@ select (select max(timestamp) from sth where log_server_id=t.log_server_id) from
       }
     }
 
-    if (results.length != 6) {
+    if (results.length != 8) {
       Result.unhealthy("There exists a log server that has 0 STHs")
     } else {
       if (results.forall { datetime => datetime.isAfter(new DateTime().minusDays(1)) })
