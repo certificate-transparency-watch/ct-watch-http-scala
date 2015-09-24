@@ -36,6 +36,10 @@ class DomainAtomFeedGenerator {
                     <td>{certificate.commonName}</td>
                   </tr>
                   <tr>
+                    <td>Subject</td>
+                    <td>{certificate.subject}</td>
+                  </tr>
+                  <tr>
                     <td>Subject Alternative Names</td>
                     <td>{certificate.subjectAlternativeNames}</td>
                   </tr>
