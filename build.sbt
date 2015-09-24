@@ -2,7 +2,7 @@ import AssemblyKeys._
 
 organization  := "com.example"
 
-version       := "0.10"
+version       := "0.11"
 
 scalaVersion  := "2.10.4"
 
