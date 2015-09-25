@@ -11,7 +11,7 @@ import org.bouncycastle.asn1.x500.style.{IETFUtils, BCStyle}
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder
 import org.joda.time.DateTime
 
-case class Certificate(serialNumber: BigInt, commonName: String, subject: String, subjectAlternativeNames: Option[List[List[_]]], expiry: DateTime, issuerDN: String)
+case class Certificate(serialNumber: BigInt, commonName: Option[String], subject: String, subjectAlternativeNames: Option[List[List[_]]], expiry: DateTime, issuerDN: String)
 
 class CertificateParser {
 
@@ -19,7 +19,7 @@ class CertificateParser {
     val cf: CertificateFactory = CertificateFactory.getInstance("X.509")
     val x509cert: X509Certificate = cf.generateCertificate(new ByteArrayInputStream(c)).asInstanceOf[X509Certificate]
     val cert = new JcaX509CertificateHolder(x509cert)
-    val cn = IETFUtils.valueToString(cert.getSubject.getRDNs(BCStyle.CN)(0).getFirst.getValue)
+    val cn = cert.getSubject.getRDNs(BCStyle.CN).headOption.map { _.getFirst.getValue.toString }
     val subject = cert.getSubject.toString
     val issuerDN = cert.getIssuer.toString
     val sans = Option(x509cert.getSubjectAlternativeNames).map { s => s.toList.map { i => i.toList }}

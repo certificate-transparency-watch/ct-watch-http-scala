@@ -15,7 +15,7 @@ class CertificateParserSpec extends Specification with Specs2RouteTest {
       val actual = certificateParser.parse(githubCert)
       val expected = Certificate(
         BigInt("15953718796281471505685363726901697671"),
-        "github.com",
+        Some("github.com"),
         "BusinessCategory=Private Organization,1.3.6.1.4.1.311.60.2.1.3=US,1.3.6.1.4.1.311.60.2.1.2=Delaware,SERIALNUMBER=5157550,STREET=548 4th Street,PostalCode=94107,C=US,ST=California,L=San Francisco,O=GitHub\\, Inc.,CN=github.com",
         Some(List(List(2, "github.com"), List(2, "www.github.com"))),
         new DateTime(2016,4,12,13,0,0),

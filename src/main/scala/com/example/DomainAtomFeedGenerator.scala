@@ -23,7 +23,10 @@ class DomainAtomFeedGenerator {
         for (entry <- certificates) yield {
           val str = s"https://${entry.logServer}/ct/v1/get-entries?start=${entry.idx}&end=${entry.idx}"
           val certificate = parser.parse(entry)
-          val title = entry.domain + " by " + certificate.issuerDN + " with serial number " + certificate.serialNumber
+          val title = (certificate.commonName match {
+            case Some(d) => d + " by "
+            case None    => ""
+          }) + (certificate.issuerDN + " with serial number " + certificate.serialNumber)
           <entry>
             <id>{str}</id>
             <link href={str}/>
