@@ -61,6 +61,18 @@ class ApiSpec extends Specification with Specs2RouteTest with HttpService {
         status === MethodNotAllowed
       }
     }
+
+    "returns 404 if asking for whole .com" in {
+      Get("/domain/com") ~> api.route ~> check {
+        status === NotFound
+      }
+    }
+
+    "returns 404 if asking for whole .co.uk" in {
+      Get("/domain/co.uk") ~> api.route ~> check {
+        status === NotFound
+      }
+    }
     
     "return log server with id" in {
       Get("/logserver/google") ~> api.route ~> check {

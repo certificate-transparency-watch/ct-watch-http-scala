@@ -1,6 +1,7 @@
 package com.example
 
 import akka.actor.{Actor, ActorRefFactory}
+import com.google.common.net.InternetDomainName
 import spray.http.HttpHeaders.`Access-Control-Allow-Origin`
 import spray.httpx.SprayJsonSupport
 import spray.routing._
@@ -55,9 +56,13 @@ class Api(logServerRepository: LogServerRepository, sthRepository : SignedTreeHe
       path ("domain" / Rest) { domain =>
         get {
           respondWithHeader(`Cache-Control`(public, `max-age`(10*60L))) {
-            complete {
-              val entries = logEntryRepository.lookupByDomain(domain)
-              (new DomainAtomFeedGenerator).generateAtomFeed(domain, entries)
+            ctx => {
+              if (InternetDomainName.from(domain).isPublicSuffix)
+                ctx.complete(404, "Cannot request a whole TLD")
+              else {
+                val entries = logEntryRepository.lookupByDomain(domain)
+                ctx.complete(200, (new DomainAtomFeedGenerator).generateAtomFeed(domain, entries))
+              }
             }
           }
         }
