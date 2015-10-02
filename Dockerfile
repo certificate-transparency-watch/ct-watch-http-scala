@@ -7,4 +7,4 @@ RUN apt-get install -y curl openjdk-7-jre openjdk-7-jdk wget
 
 RUN wget https://github.com/tomfitzhenry/ct-watch-http-scala/releases/download/0.13/ct-watch-http-scala-assembly-0.13.jar
 
-CMD java -jar ct-watch-http-scala-assembly-0.13.jar
+CMD java -server -Xms300M -Xmx750M -jar ct-watch-http-scala-assembly-0.13.jar
