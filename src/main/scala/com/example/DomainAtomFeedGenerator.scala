@@ -1,11 +1,11 @@
 package com.example
 
 import org.joda.time.format.ISODateTimeFormat
-import org.joda.time.DateTime
+import org.joda.time.{DateTimeZone, DateTime}
 
 class DomainAtomFeedGenerator {
   def generateAtomFeed(domain: String, certificates: Seq[LogEntry]) = {
-    val now = ISODateTimeFormat.dateTime().print(new DateTime())
+    val now = ISODateTimeFormat.dateTime().print(new DateTime(DateTimeZone.UTC))
 
     val parser = new CertificateParser
     
