@@ -5,7 +5,7 @@ import com.codahale.metrics.health.HealthCheck.Result
 import com.codahale.metrics.health.HealthCheckRegistry
 import com.google.common.collect.{MapDifference, Maps}
 import net.noerd.prequel.DatabaseConfig
-import org.joda.time.DateTime
+import org.joda.time.{DateTimeZone, DateTime}
 
 class HealthChecks(healthCheckRegistry: HealthCheckRegistry, db: DatabaseConfig) {
   healthCheckRegistry.register("recent sth", new RecentSthCheck(db))
@@ -25,14 +25,14 @@ WITH RECURSIVE  t AS (
         FROM t where t.log_server_id is not null
 )
 select (select max(timestamp) from sth where log_server_id=t.log_server_id) from t where t.log_server_id is not null order by log_server_id;""") { r =>
-        new DateTime(r.nextLong.get)
+        new DateTime(r.nextLong.get, DateTimeZone.UTC)
       }
     }
 
     if (results.length != 8) {
       Result.unhealthy("There exists a log server that has 0 STHs")
     } else {
-      if (results.forall { datetime => datetime.isAfter(new DateTime().minusDays(1)) })
+      if (results.forall { datetime => datetime.isAfter(new DateTime(DateTimeZone.UTC).minusDays(1)) })
         Result.healthy()
       else
         Result.unhealthy("There exists a log server whose latest STH is >3 hours")

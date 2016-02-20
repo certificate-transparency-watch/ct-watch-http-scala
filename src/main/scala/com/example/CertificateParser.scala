@@ -9,7 +9,7 @@ import java.security.cert.{CertificateFactory, X509Certificate}
 
 import org.bouncycastle.asn1.x500.style.{IETFUtils, BCStyle}
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder
-import org.joda.time.DateTime
+import org.joda.time.{DateTimeZone, DateTime}
 
 case class Certificate(serialNumber: BigInt, commonName: Option[String], subject: String, subjectAlternativeNames: Option[List[List[_]]], expiry: DateTime, issuerDN: String)
 
@@ -23,7 +23,7 @@ class CertificateParser {
     val subject = cert.getSubject.toString
     val issuerDN = cert.getIssuer.toString
     val sans = Option(x509cert.getSubjectAlternativeNames).map { s => s.toList.map { i => i.toList }}
-    Certificate(x509cert.getSerialNumber, cn, subject, sans, new DateTime(cert.getNotAfter), issuerDN)
+    Certificate(x509cert.getSerialNumber, cn, subject, sans, new DateTime(cert.getNotAfter, DateTimeZone.UTC), issuerDN)
   }
 
   def parse(le: LogEntry): Certificate = parse(("-----BEGIN CERTIFICATE-----\n" + le.certificate + "\n-----END CERTIFICATE-----").getBytes(Charsets.US_ASCII))
