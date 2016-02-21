@@ -1,4 +1,15 @@
-sudo: false
+sudo: required
 language: scala
 scala:
-    - 2.10.4
+- 2.10.4
+services:
+- docker
+
+after_script:
+- docker login -u tomfitzhenry -p $BINTRAY_API_KEY -e tom@tom-fitzhenry.me.uk certificate-transparency-watch-docker-ct-watch-registry.bintray.io
+- docker build -t certificate-transparency-watch-docker-ct-watch-registry.bintray.io/ct-watch-http-scala .
+- docker push certificate-transparency-watch-docker-ct-watch-registry.bintray.io/ct-watch-http-scala
+
+env:
+  global:
+    secure: C6GTDUGkqWn3iZdCIggCHZlMpmLBjQsueWYsfendjGYCGXT/Y0pvjxaHUZtu9/b88COstLpB52u45d6pv/GJiCTRpEqm6F4iuOwjc9TalrGv/5qdQWIDAuJ5krx3NWyXN8eyAvuPpfTX6Th/Wpcl+gm5UUyy6dgybm28bTKK72A=
