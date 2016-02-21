@@ -1,7 +1,7 @@
-FROM ubuntu:14.10
+FROM ubuntu:15.10
 MAINTAINER tom@tom-fitzhenry.me.uk
 
-RUN echo "deb http://archive.ubuntu.com/ubuntu utopic main universe" >> /etc/apt/sources.list
+RUN echo "deb http://archive.ubuntu.com/ubuntu vivid main universe" >> /etc/apt/sources.list
 RUN apt-get update
 RUN apt-get install -y curl openjdk-7-jre openjdk-7-jdk wget
 
