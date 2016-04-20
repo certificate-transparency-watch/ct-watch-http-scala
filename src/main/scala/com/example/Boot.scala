@@ -12,7 +12,7 @@ object Boot extends App {
   
   val database = DatabaseConfig(
     driver = "org.postgresql.Driver",
-    jdbcURL = "jdbc:postgresql://172.17.42.1/ct-watch?user=docker&password=docker"
+    jdbcURL = "jdbc:postgresql://172.17.0.1/ct-watch?user=docker&password=docker"
   )
   
   val healthCheckRegistry = new HealthCheckRegistry
